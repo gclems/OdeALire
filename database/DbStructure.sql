@@ -1,0 +1,97 @@
+CREATE TABLE `user` (
+    `Id` INT NOT NULL AUTO_INCREMENT,
+    `Name` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `Email` VARCHAR(300) NOT NULL,
+    `Password` VARCHAR(255) NOT NULL,
+    `RememberToken` VARCHAR(100) NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `UpdatedAt` TIMESTAMP NULL,
+    PRIMARY KEY (`Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `author` (
+    `Id` INT NOT NULL AUTO_INCREMENT ,
+    `Name` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `UpdatedAt` TIMESTAMP NULL ,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`),
+    INDEX `creator_id` (`Creator_Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `editor` (
+    `Id` INT NOT NULL AUTO_INCREMENT ,
+    `Name` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `UpdatedAt` TIMESTAMP NULL ,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`),
+    INDEX `creator_id` (`Creator_Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `serie` (
+    `Id` INT NOT NULL AUTO_INCREMENT ,
+    `Title` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `UpdatedAt` TIMESTAMP NULL ,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`),
+    INDEX `creator_id` (`Creator_Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `book` (
+    `Id` INT NOT NULL AUTO_INCREMENT ,
+    `Title` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `Description` VARCHAR(3000) COLLATE UTF8_GENERAL_CI NULL,
+    `Isbn` VARCHAR(300) NULL,
+    `ImageUrl` VARCHAR(300) NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `UpdatedAt` TIMESTAMP NULL ,
+    `Serie_Id` INT NULL ,
+    `Editor_Id` INT NULL ,
+    `SerieNumber` INT NULL ,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`),
+    INDEX `creator_id` (`Creator_Id`),
+    INDEX `serie_id` (`Serie_Id`),
+    INDEX `editor_id` (`Editor_Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `book_author` (
+    `Book_Id` INT NOT NULL ,
+    `Author_Id` INT NOT NULL ,
+    PRIMARY KEY (`Book_Id`, `Author_Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `borrower` (
+    `Id` INT NOT NULL AUTO_INCREMENT,
+    `FirstName` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `LastName` VARCHAR(300) COLLATE UTF8_GENERAL_CI NOT NULL,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `UpdatedAt` TIMESTAMP NULL,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`)) ENGINE = InnoDB;
+
+CREATE TABLE `loan` (
+    `Id` INT NOT NULL AUTO_INCREMENT ,
+    `Book_Id` INT NOT NULL ,
+    `Borrower_Id` INT NOT NULL ,
+    `LentAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `ReturnPlannedAt` TIMESTAMP NULL ,
+    `ReturnedAt` TIMESTAMP NULL ,
+    `CreatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    `UpdatedAt` TIMESTAMP NULL ,
+    `Creator_Id` int NOT NULL ,
+    PRIMARY KEY (`Id`),
+    INDEX `creator_id` (`Creator_Id`),
+    INDEX `book_id` (`Book_Id`)) ENGINE = InnoDB;
+
+ALTER TABLE `book` ADD CONSTRAINT `fk_book_serie` FOREIGN KEY (`Serie_Id`) REFERENCES `serie`(`Id`) ON DELETE SET NULL ON UPDATE NO ACTION;
+ALTER TABLE `book` ADD CONSTRAINT `fk_book_editor` FOREIGN KEY (`Editor_Id`) REFERENCES `editor`(`Id`) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+ALTER TABLE `book` ADD CONSTRAINT `fk_book_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `serie` ADD CONSTRAINT `fk_serie_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `author` ADD CONSTRAINT `fk_author_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `editor` ADD CONSTRAINT `fk_editor_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `borrower` ADD CONSTRAINT `fk_borrower_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `loan` ADD CONSTRAINT `fk_loan_creator` FOREIGN KEY (`Creator_Id`) REFERENCES `user`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `book_author`ADD CONSTRAINT `fk_book_author_book` FOREIGN KEY (`Book_Id`) REFERENCES `book`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `book_author`ADD CONSTRAINT `fk_book_author_author`FOREIGN KEY (`Author_Id`) REFERENCES `author`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `loan`ADD CONSTRAINT `fk_loan_book` FOREIGN KEY (`Book_Id`) REFERENCES `book`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `loan`ADD CONSTRAINT `fk_loan_borrower` FOREIGN KEY (`Borrower_Id`) REFERENCES `borrower`(`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
